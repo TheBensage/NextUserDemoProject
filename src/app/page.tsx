@@ -18,31 +18,30 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadUsers();
+    const fetchUsers = async () => {
+      await loadUsers();
+    };
+
+    fetchUsers();
   }, []);
 
   return (
-    <main className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">User Manager</h1>
-
-      <div className="flex justify-end mb-6">
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Add
-        </button>
-      </div>
+    <main className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-6 flex flex-col items-center">
+      <h1 className="text-4xl font-bold mb-8 text-purple-800">User Manager</h1>
+      <button
+        onClick={() => setShowModal(true)}
+        className="mb-6 bg-purple-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-purple-700 transition"
+      >
+        + Add User
+      </button>
 
       <UserList users={users} loading={loading} />
 
-      {showModal && (
-        <AddUserModal
-          onClose={() => setShowModal(false)}
-          onUserAdded={loadUsers}
-        />
-      )}
+      <AddUserModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onUserAdded={loadUsers}
+      />
     </main>
   );
 }

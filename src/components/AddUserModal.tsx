@@ -1,111 +1,151 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { userSchema, UserInput } from "@/lib/validation/user";
+import { useEffect, useRef } from "react";
 
-export default function AddUserModal({
-  onClose,
-  onUserAdded,
-}: {
+type AddUserModalProps = {
+  isOpen: boolean;
   onClose: () => void;
   onUserAdded: () => void;
-}) {
-  const [form, setForm] = useState({
-    fullName: "",
-    age: "",
-    country: "",
-    interests: [] as string[],
+};
+
+export default function AddUserModal({
+  isOpen,
+  onClose,
+  onUserAdded,
+}: AddUserModalProps) {
+  const COUNTRIES = ["UK", "USA", "Canada"];
+  const INTERESTS = ["Sports", "Music", "Coding"];
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<UserInput>({
+    resolver: zodResolver(userSchema),
+    defaultValues: { fullName: "", age: 18, country: "", interests: [] },
   });
 
-  const toggleInterest = (interest: string) => {
-    setForm((f) => ({
-      ...f,
-      interests: f.interests.includes(interest)
-        ? f.interests.filter((i) => i !== interest)
-        : [...f.interests, interest],
-    }));
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const handleClose = () => {
+    dialogRef.current?.close();
+    onClose();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit: SubmitHandler<UserInput> = async (data) => {
     const res = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        age: Number(form.age),
-      }),
+      body: JSON.stringify(data),
     });
 
     if (res.ok) {
-      setForm({ fullName: "", age: "", country: "", interests: [] });
+      reset();
       onUserAdded();
       onClose();
-    } else {
-      alert("Error adding user");
     }
   };
 
+  useEffect(() => {
+    if (!dialogRef.current) {
+      return;
+    }
+    if (isOpen && !dialogRef.current.open) {
+      dialogRef.current.showModal();
+    }
+    if (!isOpen && dialogRef.current.open) {
+      dialogRef.current.close();
+    }
+  }, [isOpen]);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-        <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-black"
-          onClick={onClose}
+    <dialog
+      ref={dialogRef}
+      className="
+        fixed inset-0 m-auto
+        max-w-md w-full
+        rounded-xl p-8
+        shadow-xl border border-gray-200
+        bg-white
+      "
+    >
+      <button
+        onClick={handleClose}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg"
+      >
+        ✕
+      </button>
+
+      <h2 className="text-2xl font-bold mb-6 text-purple-800">Add New User</h2>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <input
+          {...register("fullName")}
+          placeholder="Full Name"
+          className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        {errors.fullName && (
+          <p className="text-red-500 text-sm">{errors.fullName.message}</p>
+        )}
+
+        <input
+          type="number"
+          placeholder="Age"
+          {...register("age", {
+            setValueAs: (v) => {
+              if (v === "" || v == null) return 0;
+              return Number(v);
+            },
+          })}
+          className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        {errors.age && (
+          <p className="text-red-500 text-sm">{errors.age.message}</p>
+        )}
+
+        <select
+          {...register("country")}
+          className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         >
-          ✕
+          <option value="">Select Country</option>
+          {COUNTRIES.map((country) => (
+            <option key={country} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
+        {errors.country && (
+          <p className="text-red-500 text-sm">{errors.country.message}</p>
+        )}
+
+        <fieldset className="flex flex-col gap-2 border-t pt-3">
+          <legend className="font-semibold text-gray-700">Interests</legend>
+          {INTERESTS.map((interest) => (
+            <label key={interest} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                value={interest}
+                {...register("interests")}
+              />
+              {interest}
+            </label>
+          ))}
+          {errors.interests && (
+            <p className="text-red-500 text-sm">{errors.interests.message}</p>
+          )}
+        </fieldset>
+
+        <button
+          type="submit"
+          className="mt-4 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+        >
+          Add User
         </button>
-
-        <h2 className="text-xl font-semibold mb-4">Add New User</h2>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
-            className="border p-2 rounded"
-            placeholder="Full Name"
-            required
-            value={form.fullName}
-            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-          />
-          <input
-            className="border p-2 rounded"
-            placeholder="Age"
-            type="number"
-            required
-            min={18}
-            value={form.age}
-            onChange={(e) => setForm({ ...form, age: e.target.value })}
-          />
-          <select
-            className="border p-2 rounded"
-            required
-            value={form.country}
-            onChange={(e) => setForm({ ...form, country: e.target.value })}
-          >
-            <option value="">Select Country</option>
-            <option>UK</option>
-            <option>USA</option>
-            <option>Canada</option>
-          </select>
-
-          <div>
-            <label className="font-semibold">Interests:</label>
-            {["Sports", "Music", "Coding"].map((interest) => (
-              <label key={interest} className="block">
-                <input
-                  type="checkbox"
-                  checked={form.interests.includes(interest)}
-                  onChange={() => toggleInterest(interest)}
-                />{" "}
-                {interest}
-              </label>
-            ))}
-          </div>
-
-          <button type="submit" className="bg-blue-600 text-white p-2 rounded">
-            Add User
-          </button>
-        </form>
-      </div>
-    </div>
+      </form>
+    </dialog>
   );
 }

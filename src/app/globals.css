@@ -4,3 +4,10 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
