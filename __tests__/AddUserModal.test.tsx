@@ -1,6 +1,6 @@
 import AddUserModal from "@/components/AddUserModal";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest"; // ← use vi instead of jest
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("AddUserModal", () => {
   const onCloseMock = vi.fn();

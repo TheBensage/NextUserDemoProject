@@ -4,7 +4,7 @@ import {
   integer,
   SQLiteColumn,
 } from "drizzle-orm/sqlite-core";
-import { NewUser, User } from "@/types";
+import { User } from "@/types";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -13,6 +13,3 @@ export const users = sqliteTable("users", {
   country: text("country").notNull(),
   interests: text("interests").notNull(),
 }) satisfies Record<keyof User, SQLiteColumn>;
-
-export type UserType = User;
-export type NewUserType = NewUser;

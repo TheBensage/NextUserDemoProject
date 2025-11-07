@@ -74,7 +74,7 @@ Tests cover rendering, user interactions, form validation, and router navigation
 - Next.js + React 19: Modern React features and server/client rendering.
 - Drizzle + SQLite: Minimal, type-safe ORM for local development.
 - TailwindCSS: Rapid, responsive styling without heavy CSS.
-- Vitest + Testing Library: Lightweight, fast, integrates with Vite.
+- Vitest + Testing Library: Lightweight, fast.
 - Client-first components: Easier to test and decouples UI logic from backend.
 - Type safety ensures fewer runtime errors.
 
