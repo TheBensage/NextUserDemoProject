@@ -19,8 +19,8 @@ This project demonstrates a modern, minimal approach to building CRUD apps with 
 
 #### Initialize database:
 
-- `npx drizzle-kit generate:sqlite`
-- Run migrations `npx drizzle-kit migrate:sqlite`
+- `npx drizzle-kit generate`
+- Run migrations `npx drizzle-kit migrate`
 
 The database file is stored at ./db.sqlite by default.
 
